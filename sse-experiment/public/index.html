@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Experiment</title>
+</head>
+<body>
+    <h1>SSE Experiment</h1>
+    <p id="sse-data"></p>
+    <button onclick="startSSE()">Start SSE</button>
+
+    <script>
+        function startSSE() {
+            const eventSource = new EventSource('/events');
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                document.getElementById('sse-data').innerText = `Time: ${data.time}`;
+            };
+
+            eventSource.onerror = function() {
+                console.error('SSE connection error');
+            };
+        }
+    </script>
+</body>
+</html>
