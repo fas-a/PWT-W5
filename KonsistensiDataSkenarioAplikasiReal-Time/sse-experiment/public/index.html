@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Experiment</title>
+</head>
+<body>
+    <h1>SSE Experiment</h1>
+    <p id="sse-data"></p>
+    <button onclick="startSSE()">Start SSE</button>
+
+    <script>
+        let sseMessages = [];
+
+        function startSSE() {
+            const eventSource = new EventSource('/events');
+
+            eventSource.onopen = function() {
+                console.log("SSE connection opened"); // Log saat koneksi terbuka
+            };
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                const receivedTime = new Date();
+                sseMessages.push({ sent: data.time, received: receivedTime.toISOString() });
+                document.getElementById('sse-data').innerText = `Time: ${data.time}`;
+                console.log(`Received SSE Message: ${event.data}`); // Log pesan yang diterima
+            };
+
+            eventSource.onerror = function() {
+                console.error('SSE connection error');
+            };
+
+            // Analisis setelah 10 detik
+            setTimeout(analyzeSSEData, 10000);
+        }
+
+        function analyzeSSEData() {
+            console.log("Analyzing SSE Data...");
+            if (sseMessages.length === 0) {
+                console.log("No messages received.");
+                return;
+            }
+            sseMessages.forEach(msg => {
+                const sentTime = new Date(msg.sent).getTime();
+                const receivedTime = new Date(msg.received).getTime();
+                const latency = receivedTime - sentTime; // dalam ms
+                console.log(`Sent: ${msg.sent}, Received: ${msg.received}, Latency: ${latency} ms`);
+            });
+        }
+    </script>
+</body>
+</html>
